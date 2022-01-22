@@ -237,6 +237,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         binding.tvCurrentPgNo.isVisible = false
         binding.tvPgNoSeperator.isVisible = false
         binding.tvTotalPages.isVisible = false
+
+        binding.tvHeadTop.isVisible = false
+        binding.ivHeadTop.isVisible = false
+        binding.lineHeadTop.isVisible = false
+
     }
 
     private fun showControls(){
@@ -253,6 +258,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         binding.tvCurrentPgNo.isVisible = true
         binding.tvPgNoSeperator.isVisible = true
         binding.tvTotalPages.isVisible = true
+
+        binding.tvHeadTop.isVisible = true
+        binding.ivHeadTop.isVisible = true
+        binding.lineHeadTop.isVisible = true
     }
 }
 

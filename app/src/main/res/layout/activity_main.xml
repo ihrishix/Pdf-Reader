@@ -12,21 +12,23 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@+id/fab_PreviousPage"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/line_headTop"
+        app:layout_constraintVertical_bias="0.0">
 
         <TextView
             android:id="@+id/tv_pageContent"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fontFamily="@font/montserrat_regular"
-            android:textColor="@color/white"
             android:text=""
+            android:textColor="@color/white"
             android:textSize="20sp" />
     </ScrollView>
 
@@ -175,6 +177,19 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
+        android:id="@+id/tv_headTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:fontFamily="@font/montserrat_regular"
+        android:text="@string/pdf_reader"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/iv_headTop"
+        app:layout_constraintTop_toTopOf="@+id/iv_headTop" />
+
+    <TextView
         android:id="@+id/tv_head3"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -189,6 +204,28 @@
         app:layout_constraintBottom_toTopOf="@+id/fab_addBig"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_headTop"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_app_icon" />
+
+    <View
+        android:id="@+id/line_headTop"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:background="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iv_headTop" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
