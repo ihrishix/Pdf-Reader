@@ -165,6 +165,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     //Opens File Picker
     private fun pickFile(selectPdfResult: ActivityResultLauncher<String>) {
+        if(tts.isSpeaking){
+            tts.stop()
+        }
+
         try {
             selectPdfResult.launch("application/pdf")
         } catch (e: ActivityNotFoundException) {
