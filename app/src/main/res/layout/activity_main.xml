@@ -22,8 +22,10 @@
         <TextView
             android:id="@+id/tv_pageContent"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="TextView" />
+            android:layout_height="match_parent"
+            android:text=""
+            android:fontFamily="@font/montserrat_regular"
+            android:textSize="20sp" />
     </ScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -97,6 +99,16 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/tv_pgNoSeperator"
         app:layout_constraintTop_toBottomOf="@+id/scrollView2" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_playTts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toTopOf="@+id/fab_selectFile"
+        app:layout_constraintEnd_toEndOf="@+id/fab_selectFile"
+        app:srcCompat="@drawable/ic_baseline_play_arrow_24" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

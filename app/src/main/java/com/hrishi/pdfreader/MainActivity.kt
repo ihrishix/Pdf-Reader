@@ -1,26 +1,23 @@
 package com.hrishi.pdfreader
 
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
-import android.util.AttributeSet
+import android.speech.tts.UtteranceProgressListener
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
+import androidx.appcompat.content.res.AppCompatResources
 import com.hrishi.pdfreader.databinding.ActivityMainBinding
 import com.itextpdf.text.pdf.PdfReader
 import com.itextpdf.text.pdf.parser.PdfTextExtractor
-import java.lang.Exception
 
 const val TAG = "MainActivity"
 
-class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
+class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
 
     lateinit var binding: ActivityMainBinding
     lateinit var tts: TextToSpeech
@@ -31,10 +28,33 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.fabPlayTts.isEnabled = false
+
         tts = TextToSpeech(this, this)
 
+        tts.setOnUtteranceProgressListener(
+            object : UtteranceProgressListener(){
+                override fun onStart(p0: String?) {
+                    binding.fabPlayTts.setImageDrawable(
+                        AppCompatResources.getDrawable(this@MainActivity, R.drawable.ic_baseline_stop_24)
+                    )
+                }
+
+                override fun onDone(p0: String?) {
+                    binding.fabPlayTts.setImageDrawable(
+                        AppCompatResources.getDrawable(this@MainActivity, R.drawable.ic_baseline_play_arrow_24)
+                    )
+                }
+
+                override fun onError(p0: String?) {
+                    Toast.makeText(
+                        this@MainActivity, "Error : $p0", Toast.LENGTH_LONG).show()
+                }
+            }
+        )
+
         val selectPdfResult = registerForActivityResult(ActivityResultContracts.GetContent()) {
-            if(loadPdf(it)){
+            if (loadPdf(it)) {
                 setPageContent(1)
             }
         }
@@ -44,9 +64,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
 
         binding.fabNextPage.setOnClickListener {
-            if(::reader.isInitialized){
+            if (::reader.isInitialized) {
                 var currentPgNo = Integer.parseInt(binding.tvCurrentPgNo.text.toString())
-                if(currentPgNo < reader.numberOfPages){
+                if (currentPgNo < reader.numberOfPages) {
                     currentPgNo++
                     setPageContent(currentPgNo)
                     binding.tvCurrentPgNo.text = currentPgNo.toString()
@@ -55,34 +75,52 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
 
         binding.fabPreviousPage.setOnClickListener {
-            if(::reader.isInitialized){
+            if (::reader.isInitialized) {
                 var currentPgNo = Integer.parseInt(binding.tvCurrentPgNo.text.toString())
-                if(1 < currentPgNo){
+                if (1 < currentPgNo) {
                     currentPgNo--
                     setPageContent(currentPgNo)
                     binding.tvCurrentPgNo.text = currentPgNo.toString()
                 }
             }
         }
+
+        binding.fabPlayTts.setOnClickListener {
+
+            if (::reader.isInitialized) {
+                if (tts.isSpeaking) {
+                    tts.stop()
+                    binding.fabPlayTts.setImageDrawable(
+                        AppCompatResources.getDrawable(this@MainActivity, R.drawable.ic_baseline_play_arrow_24)
+                    )
+
+                } else {
+                    speak(binding.tvPageContent.text.toString())
+
+                }
+            }
+        }
+
+
     }
 
     //Opens File Picker
-    private fun pickFile(selectPdfResult : ActivityResultLauncher<String>){
-        try{
+    private fun pickFile(selectPdfResult: ActivityResultLauncher<String>) {
+        try {
             selectPdfResult.launch("application/pdf")
-        }catch (e : ActivityNotFoundException){
+        } catch (e: ActivityNotFoundException) {
             Toast.makeText(this, "No File Picker Found", Toast.LENGTH_SHORT).show()
-            Log.e(TAG, "pickFile: ${e.message}", )
+            Log.e(TAG, "pickFile: ${e.message}")
         }
     }
 
     //Sets the reader
-    private fun loadPdf(uri : Uri) : Boolean{
+    private fun loadPdf(uri: Uri): Boolean {
 
         try {
             reader = PdfReader(contentResolver.openInputStream(uri))
 
-            if(reader.numberOfPages == 0){
+            if (reader.numberOfPages == 0) {
                 Toast.makeText(this, "Empty Pdf", Toast.LENGTH_SHORT).show()
                 return false
             }
@@ -92,25 +130,36 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             binding.tvCurrentPgNo.text = "1"
             return true
 
-        }catch (e : Exception){
+        } catch (e: Exception) {
             Toast.makeText(this, "Error While Reading PDF", Toast.LENGTH_SHORT).show()
-            Log.e(TAG, "loadPdf: ${e.message}", )
+            Log.e(TAG, "loadPdf: ${e.message}")
             return false
         }
 
     }
 
     //Sets Text of Page to the TextView
-    private fun setPageContent(pageNo : Int){
+    private fun setPageContent(pageNo: Int) {
 
-        if(pageNo <= reader.numberOfPages){
-            binding.tvPageContent.setText("Page $pageNo \n" + PdfTextExtractor.getTextFromPage(reader, pageNo))
+        if (pageNo <= reader.numberOfPages) {
+            binding.tvPageContent.setText(
+                "Page $pageNo \n\n" + PdfTextExtractor.getTextFromPage(
+                    reader,
+                    pageNo
+                )
+            )
         }
     }
 
     //For TextToSpeech Init
     override fun onInit(p0: Int) {
         Toast.makeText(this, "Init", Toast.LENGTH_SHORT).show()
+        binding.fabPlayTts.isEnabled = true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        tts.shutdown()
     }
 
     //Speaks the text with TextToSpeech
