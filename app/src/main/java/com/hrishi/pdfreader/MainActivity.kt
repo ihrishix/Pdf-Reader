@@ -17,7 +17,7 @@ import com.itextpdf.text.pdf.parser.PdfTextExtractor
 
 const val TAG = "MainActivity"
 
-class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
+class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     lateinit var binding: ActivityMainBinding
     lateinit var tts: TextToSpeech
@@ -33,22 +33,42 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
         tts = TextToSpeech(this, this)
 
         tts.setOnUtteranceProgressListener(
-            object : UtteranceProgressListener(){
+            object : UtteranceProgressListener() {
                 override fun onStart(p0: String?) {
                     binding.fabPlayTts.setImageDrawable(
-                        AppCompatResources.getDrawable(this@MainActivity, R.drawable.ic_baseline_stop_24)
+                        AppCompatResources.getDrawable(
+                            this@MainActivity,
+                            R.drawable.ic_baseline_stop_24
+                        )
+                    )
+                }
+
+                override fun onStop(utteranceId: String?, interrupted: Boolean) {
+                    super.onStop(utteranceId, interrupted)
+                    binding.fabPlayTts.setImageDrawable(
+                        AppCompatResources.getDrawable(
+                            this@MainActivity,
+                            R.drawable.ic_baseline_play_arrow_24
+                        )
                     )
                 }
 
                 override fun onDone(p0: String?) {
                     binding.fabPlayTts.setImageDrawable(
-                        AppCompatResources.getDrawable(this@MainActivity, R.drawable.ic_baseline_play_arrow_24)
+                        AppCompatResources.getDrawable(
+                            this@MainActivity,
+                            R.drawable.ic_baseline_play_arrow_24
+                        )
                     )
+
+                    nextPageSpeak()
+                    //speak(binding.tvPageContent.text.toString())
                 }
 
                 override fun onError(p0: String?) {
                     Toast.makeText(
-                        this@MainActivity, "Error : $p0", Toast.LENGTH_LONG).show()
+                        this@MainActivity, "Error : $p0", Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         )
@@ -64,14 +84,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
         }
 
         binding.fabNextPage.setOnClickListener {
-            if (::reader.isInitialized) {
-                var currentPgNo = Integer.parseInt(binding.tvCurrentPgNo.text.toString())
-                if (currentPgNo < reader.numberOfPages) {
-                    currentPgNo++
-                    setPageContent(currentPgNo)
-                    binding.tvCurrentPgNo.text = currentPgNo.toString()
-                }
-            }
+            nextPage()
         }
 
         binding.fabPreviousPage.setOnClickListener {
@@ -81,6 +94,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
                     currentPgNo--
                     setPageContent(currentPgNo)
                     binding.tvCurrentPgNo.text = currentPgNo.toString()
+
+                    if (tts.isSpeaking) {
+                        tts.stop()
+                        speak(binding.tvPageContent .text.toString())
+                    }
                 }
             }
         }
@@ -91,7 +109,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
                 if (tts.isSpeaking) {
                     tts.stop()
                     binding.fabPlayTts.setImageDrawable(
-                        AppCompatResources.getDrawable(this@MainActivity, R.drawable.ic_baseline_play_arrow_24)
+                        AppCompatResources.getDrawable(
+                            this@MainActivity,
+                            R.drawable.ic_baseline_play_arrow_24
+                        )
                     )
 
                 } else {
@@ -102,6 +123,40 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
         }
 
 
+    }
+
+    //Changes to Next Page
+    private fun nextPageSpeak(){
+        if (::reader.isInitialized) {
+            var currentPgNo = Integer.parseInt(binding.tvCurrentPgNo.text.toString())
+            if (currentPgNo < reader.numberOfPages) {
+                currentPgNo++
+                setPageContent(currentPgNo)
+                binding.tvCurrentPgNo.text = currentPgNo.toString()
+
+                if (tts.isSpeaking) {
+                    tts.stop()
+                }
+                speak(binding.tvPageContent.text.toString())
+            }
+        }
+    }
+
+    //Changes to Next Page
+    private fun nextPage(){
+        if (::reader.isInitialized) {
+            var currentPgNo = Integer.parseInt(binding.tvCurrentPgNo.text.toString())
+            if (currentPgNo < reader.numberOfPages) {
+                currentPgNo++
+                setPageContent(currentPgNo)
+                binding.tvCurrentPgNo.text = currentPgNo.toString()
+
+                if (tts.isSpeaking) {
+                    tts.stop()
+                }
+                speak(binding.tvPageContent.text.toString())
+            }
+        }
     }
 
     //Opens File Picker
