@@ -190,6 +190,15 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             showControls()
 
+            var fileName = ""
+            try {
+                fileName = uri.path!!.split("/").last()
+            }catch (e: Exception){
+                Toast.makeText(this, "Error with FileName", Toast.LENGTH_SHORT).show()
+                Log.e(TAG, "loadPdf: ${e.message}", )
+            }
+
+            binding.tvFileName.text = fileName
             binding.tvTotalPages.text = reader.numberOfPages.toString()
             binding.tvPgNoSeperator.text = "/"
             binding.tvCurrentPgNo.text = "1"
@@ -227,8 +236,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     //Speaks the text with TextToSpeech
     private fun speak(text: String) =
         tts.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "PdfReader")
-
-
+    
     private fun hideControls(){
         binding.fabPlayTts.isVisible = false
         binding.fabPreviousPage.isVisible = false
@@ -241,7 +249,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         binding.tvHeadTop.isVisible = false
         binding.ivHeadTop.isVisible = false
         binding.lineHeadTop.isVisible = false
-
+        binding.tvFileName.isVisible = false
     }
 
     private fun showControls(){
@@ -262,6 +270,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         binding.tvHeadTop.isVisible = true
         binding.ivHeadTop.isVisible = true
         binding.lineHeadTop.isVisible = true
+        binding.tvFileName.isVisible = true
     }
 }
 

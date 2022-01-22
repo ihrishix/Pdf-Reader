@@ -41,13 +41,13 @@
         android:backgroundTint="@color/white"
         android:clickable="true"
         android:contentDescription="Goto Previous Page"
+        android:focusable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/fab_nextPage"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_baseline_arrow_circle_left_24"
-        android:focusable="true" />
+        app:srcCompat="@drawable/ic_baseline_arrow_circle_left_24" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_nextPage"
@@ -55,14 +55,14 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:backgroundTint="@color/white"
-        android:contentDescription="Goto Next Page"
         android:clickable="true"
+        android:contentDescription="Goto Next Page"
+        android:focusable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/fab_PreviousPage"
         app:layout_constraintTop_toTopOf="@+id/fab_PreviousPage"
-        app:srcCompat="@drawable/ic_baseline_arrow_circle_right_24"
-        android:focusable="true" />
+        app:srcCompat="@drawable/ic_baseline_arrow_circle_right_24" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_selectFile"
@@ -70,12 +70,23 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:backgroundTint="@color/white"
-        android:contentDescription="Select Pdf Icon"
         android:clickable="true"
+        android:contentDescription="Select Pdf Icon"
+        android:focusable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/fab_PreviousPage"
-        app:srcCompat="@drawable/ic_baseline_add_24"
-        android:focusable="true" />
+        app:srcCompat="@drawable/ic_baseline_add_24" />
+
+    <TextView
+        android:id="@+id/tv_fileName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:fontFamily="@font/montserrat_regular"
+        android:text=""
+        android:textColor="@color/white"
+        app:layout_constraintBaseline_toBaselineOf="@+id/tv_headTop"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
         android:id="@+id/tv_currentPgNo"
@@ -122,21 +133,22 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:backgroundTint="@color/white"
-        android:contentDescription="Play Stop Text Icon"
-        android:tint="@color/white"
         android:clickable="true"
+        android:contentDescription="Play Stop Text Icon"
+        android:focusable="true"
+        android:tint="@color/white"
         app:layout_constraintBottom_toTopOf="@+id/fab_selectFile"
         app:layout_constraintEnd_toEndOf="@+id/fab_selectFile"
-        app:srcCompat="@drawable/ic_baseline_play_arrow_24"
-        android:focusable="true" />
+        app:srcCompat="@drawable/ic_baseline_play_arrow_24" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_addBig"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:backgroundTint="@color/brown"
-        android:contentDescription="Select Pdf Icon"
         android:clickable="true"
+        android:contentDescription="Select Pdf Icon"
+        android:focusable="true"
         app:fabCustomSize="150dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -144,17 +156,16 @@
         app:layout_constraintTop_toTopOf="parent"
         app:maxImageSize="150dp"
         app:srcCompat="@drawable/add_icon"
-        app:tint="@null"
-        android:focusable="true" />
+        app:tint="@null" />
 
     <TextView
         android:id="@+id/tv_head2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:textColor="@color/white"
         android:fontFamily="@font/montserrat_regular"
         android:text="@string/click_to_select_a_pdf"
+        android:textColor="@color/white"
         android:textSize="26sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/scrollView2"
@@ -166,10 +177,10 @@
         android:id="@+id/tv_head1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/white"
         android:layout_marginBottom="8dp"
         android:fontFamily="@font/montserrat_regular"
         android:text="@string/pdf_reader"
+        android:textColor="@color/white"
         android:textSize="34sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/tv_head3"
@@ -193,13 +204,13 @@
         android:id="@+id/tv_head3"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textColor="@color/white"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="16dp"
-        android:gravity="center"
         android:fontFamily="@font/montserrat_regular"
+        android:gravity="center"
         android:text="@string/heading_2"
+        android:textColor="@color/white"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/fab_addBig"
         app:layout_constraintEnd_toEndOf="parent"
