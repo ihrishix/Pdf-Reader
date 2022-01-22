@@ -7,6 +7,7 @@
     tools:context=".MainActivity">
 
     <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
@@ -62,18 +63,40 @@
         app:srcCompat="@drawable/ic_baseline_add_24" />
 
     <TextView
-        android:id="@+id/tv_pageNo"
+        android:id="@+id/tv_currentPgNo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:text="0 / 0"
+        android:layout_marginEnd="4dp"
         android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/fab_PreviousPage"
+        app:layout_constraintEnd_toStartOf="@+id/tv_pgNoSeperator"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/fab_PreviousPage" />
+        app:layout_constraintTop_toTopOf="@+id/tv_pgNoSeperator" />
+
+    <TextView
+        android:id="@+id/tv_pgNoSeperator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toStartOf="@+id/tv_totalPages"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/tv_currentPgNo"
+        app:layout_constraintTop_toTopOf="@+id/tv_totalPages" />
+
+    <TextView
+        android:id="@+id/tv_totalPages"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:text="0"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/fab_PreviousPage"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/tv_pgNoSeperator"
+        app:layout_constraintTop_toBottomOf="@+id/scrollView2" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
