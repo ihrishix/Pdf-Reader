@@ -11,6 +11,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.view.isVisible
 import com.hrishi.pdfreader.databinding.ActivityMainBinding
 import com.itextpdf.text.pdf.PdfReader
 import com.itextpdf.text.pdf.parser.PdfTextExtractor
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         setContentView(binding.root)
 
         binding.fabPlayTts.isEnabled = false
+        hideControls()
 
         tts = TextToSpeech(this, this)
 
@@ -97,7 +99,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
                     if (tts.isSpeaking) {
                         tts.stop()
-                        speak(binding.tvPageContent .text.toString())
+                        speak(binding.tvPageContent.text.toString())
                     }
                 }
             }
@@ -122,11 +124,13 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
         }
 
-
+        binding.fabAddBig.setOnClickListener {
+            pickFile(selectPdfResult)
+        }
     }
 
     //Changes to Next Page
-    private fun nextPageSpeak(){
+    private fun nextPageSpeak() {
         if (::reader.isInitialized) {
             var currentPgNo = Integer.parseInt(binding.tvCurrentPgNo.text.toString())
             if (currentPgNo < reader.numberOfPages) {
@@ -143,7 +147,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     //Changes to Next Page
-    private fun nextPage(){
+    private fun nextPage() {
         if (::reader.isInitialized) {
             var currentPgNo = Integer.parseInt(binding.tvCurrentPgNo.text.toString())
             if (currentPgNo < reader.numberOfPages) {
@@ -153,8 +157,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
                 if (tts.isSpeaking) {
                     tts.stop()
+                    speak(binding.tvPageContent.text.toString())
                 }
-                speak(binding.tvPageContent.text.toString())
             }
         }
     }
@@ -180,6 +184,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 return false
             }
 
+            showControls()
+
             binding.tvTotalPages.text = reader.numberOfPages.toString()
             binding.tvPgNoSeperator.text = "/"
             binding.tvCurrentPgNo.text = "1"
@@ -201,14 +207,13 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 "Page $pageNo \n\n" + PdfTextExtractor.getTextFromPage(
                     reader,
                     pageNo
-                )
+                ).trim()
             )
         }
     }
 
     //For TextToSpeech Init
     override fun onInit(p0: Int) {
-        Toast.makeText(this, "Init", Toast.LENGTH_SHORT).show()
         binding.fabPlayTts.isEnabled = true
     }
 
@@ -219,7 +224,33 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     //Speaks the text with TextToSpeech
     private fun speak(text: String) =
-        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "PdfReader")
+        tts.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "PdfReader")
 
+
+    private fun hideControls(){
+        binding.fabPlayTts.isVisible = false
+        binding.fabPreviousPage.isVisible = false
+        binding.fabNextPage.isVisible = false
+        binding.fabSelectFile.isVisible = false
+        binding.tvCurrentPgNo.isVisible = false
+        binding.tvPgNoSeperator.isVisible = false
+        binding.tvTotalPages.isVisible = false
+    }
+
+    private fun showControls(){
+
+        binding.fabAddBig.isVisible = false
+        binding.tvHead1.isVisible = false
+        binding.tvHead2.isVisible = false
+        binding.tvHead3.isVisible = false
+
+        binding.fabPlayTts.isVisible = true
+        binding.fabPreviousPage.isVisible = true
+        binding.fabNextPage.isVisible = true
+        binding.fabSelectFile.isVisible = true
+        binding.tvCurrentPgNo.isVisible = true
+        binding.tvPgNoSeperator.isVisible = true
+        binding.tvTotalPages.isVisible = true
+    }
 }
 
