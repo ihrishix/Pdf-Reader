@@ -203,12 +203,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun setPageContent(pageNo: Int) {
 
         if (pageNo <= reader.numberOfPages) {
-            binding.tvPageContent.setText(
-                "Page $pageNo \n\n" + PdfTextExtractor.getTextFromPage(
-                    reader,
-                    pageNo
-                ).trim()
-            )
+            binding.tvPageContent.text = "Page $pageNo \n\n" + PdfTextExtractor.getTextFromPage(
+                reader,
+                pageNo
+            ).trim()
         }
     }
 

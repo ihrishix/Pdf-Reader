@@ -38,12 +38,14 @@
         android:layout_marginBottom="8dp"
         android:backgroundTint="@color/white"
         android:clickable="true"
+        android:contentDescription="Goto Previous Page"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/fab_nextPage"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_baseline_arrow_circle_left_24" />
+        app:srcCompat="@drawable/ic_baseline_arrow_circle_left_24"
+        android:focusable="true" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_nextPage"
@@ -51,12 +53,14 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:backgroundTint="@color/white"
+        android:contentDescription="Goto Next Page"
         android:clickable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/fab_PreviousPage"
         app:layout_constraintTop_toTopOf="@+id/fab_PreviousPage"
-        app:srcCompat="@drawable/ic_baseline_arrow_circle_right_24" />
+        app:srcCompat="@drawable/ic_baseline_arrow_circle_right_24"
+        android:focusable="true" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_selectFile"
@@ -64,10 +68,12 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:backgroundTint="@color/white"
+        android:contentDescription="Select Pdf Icon"
         android:clickable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/fab_PreviousPage"
-        app:srcCompat="@drawable/ic_baseline_add_24" />
+        app:srcCompat="@drawable/ic_baseline_add_24"
+        android:focusable="true" />
 
     <TextView
         android:id="@+id/tv_currentPgNo"
@@ -114,18 +120,20 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:backgroundTint="@color/white"
+        android:contentDescription="Play Stop Text Icon"
         android:tint="@color/white"
         android:clickable="true"
         app:layout_constraintBottom_toTopOf="@+id/fab_selectFile"
         app:layout_constraintEnd_toEndOf="@+id/fab_selectFile"
-        app:srcCompat="@drawable/ic_baseline_play_arrow_24" />
+        app:srcCompat="@drawable/ic_baseline_play_arrow_24"
+        android:focusable="true" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_addBig"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:backgroundTint="@color/brown"
-        android:outlineAmbientShadowColor="@color/white"
+        android:contentDescription="Select Pdf Icon"
         android:clickable="true"
         app:fabCustomSize="150dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -134,7 +142,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:maxImageSize="150dp"
         app:srcCompat="@drawable/add_icon"
-        app:tint="@null" />
+        app:tint="@null"
+        android:focusable="true" />
 
     <TextView
         android:id="@+id/tv_head2"
