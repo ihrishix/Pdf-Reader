@@ -1,74 +1,68 @@
 package com.hrishi.pdfreader
 
-import android.app.Activity
-import android.content.ContentProvider
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.provider.DocumentsContract
-import android.util.Log
+import android.speech.tts.TextToSpeech
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.hrishi.pdfreader.databinding.ActivityMainBinding
 import com.itextpdf.text.pdf.PdfReader
 import com.itextpdf.text.pdf.parser.PdfTextExtractor
-import java.net.URL
 
 val PICK_PDF_FILE = 2
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     lateinit var binding: ActivityMainBinding
+    lateinit var reader: PdfReader
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.numPicker.maxValue = 10
+        binding.numPicker.minValue = 2
+        val tts = TextToSpeech(this, this)
+
+
+        val acti = registerForActivityResult(ActivityResultContracts.GetContent()) {
+
+            var out = StringBuilder("")
+
+            for (i in 1..reader.numberOfPages) {
+                out.append(PdfTextExtractor.getTextFromPage(reader, i))
+            }
+            binding.textView.text = out
+            tts.speak(out, TextToSpeech.QUEUE_FLUSH, null, "pdfReader")
+        }
 
         binding.btnSelectFile.setOnClickListener {
 
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "application/pdf"
+            acti.launch("application/pdf")
 
-            }
-
-
-            startActivityForResult(intent, PICK_PDF_FILE)
 
         }
 
 
     }
 
+    private fun loadPdf(uri : Uri){
+        reader = PdfReader(contentResolver.openInputStream(uri))
+    }
 
-    override fun onActivityResult(
-        requestCode: Int, resultCode: Int, resultData: Intent?
-    ) {
-        super.onActivityResult(requestCode, resultCode, resultData)
-        if (requestCode == PICK_PDF_FILE
-            && resultCode == Activity.RESULT_OK
-        ) {
-            // The result data contains a URI for the document or directory that
-            // the user selected.
-            resultData?.data?.also { uri ->
-                // Perform operations on the document using its URI.
-                binding.textView.text = uri.toString()
-               // val reader = PdfReader(URL(uri.toString()))
+    private fun setPageContent(pageNo : Int){
 
-                val urri = Uri.parse("/storage/emulated/0/Download/hello.pdf")
-                Log.d("Main", "onActivityResult: ${urri.toString()}")
-                val reader = PdfReader(contentResolver.openInputStream(uri))
-
-                binding.textView.text = PdfTextExtractor.getTextFromPage(reader, 3)
-                    //val f = PdfTextExtractor.getTextFromPage(reader, 1)
-
-
-
-
-            }
+        if(pageNo <= reader.numberOfPages){
+            binding.tvPageContent.text = "Page $pageNo \n" + PdfTextExtractor.getTextFromPage(reader, pageNo)
         }
     }
+
+    override fun onInit(p0: Int) {
+        Toast.makeText(this, "Init", Toast.LENGTH_SHORT).show()
+    }
+
 
 }
 
