@@ -1,42 +1,92 @@
 package com.hrishi.pdfreader
 
+import android.app.Activity
+import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.icu.util.Calendar
 import android.os.Bundle
+import android.os.Looper
+import android.util.Log
+import android.widget.CompoundButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
+import androidx.core.widget.doOnTextChanged
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
+import com.google.android.gms.tasks.Task
+import com.hrishi.pdfreader.databinding.ActivityLocationBinding
 
-const val RC_LOCATION = 0   //Request Code Location
+const val REQUEST_LOCATION = 0   //Request Code Location
+const val REQUEST_CHECK_SETTINGS = 1
 var LocationUpdateInterval:Long = 10000 //milliSec
+var requestingLocationUpdates = false
 
 class Location : AppCompatActivity() {
 
     lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationCallback: LocationCallback
+    lateinit var binding: ActivityLocationBinding
+    private lateinit var locationRequest: LocationRequest
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_location)
+        binding = ActivityLocationBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         requestPermissions()
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        if(checkCoarseLocationPermission()){
-            fusedLocationClient.getCurrentLocation(
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                locationResult ?: return
+
+                Log.d("Hrishi", "onLocationResult: Recevied")
+                for (location in locationResult.locations){
+                    binding.tvLocation.setText("${location.latitude} ${location.longitude}")
+                    binding.tvTime.setText(java.util.Calendar.getInstance().time.toString())
+                }
+            }
         }
 
+        binding.switchLocationUpdate.setOnCheckedChangeListener { _, isChecked ->
+            if(isChecked) {
+                requestingLocationUpdates = true
+                createLocationRequest()
+
+            }else{
+                requestingLocationUpdates = false
+                stopLocationUpdates()
+            }
+        }
+        
+        binding.etIntervalTime.doOnTextChanged { text, start, before, count ->
+            if(text!!.isNotEmpty()){
+                val interval = Integer.parseInt(text.toString())
+                if(interval >= 5000){
+                    LocationUpdateInterval = interval.toLong()
+
+                    if(::locationRequest.isInitialized){
+                        Log.e("Hrishi", "onCreate: $interval", )
+                        locationRequest.interval = LocationUpdateInterval
+                        locationRequest.fastestInterval = LocationUpdateInterval
+                        stopLocationUpdates()
+                        createLocationRequest()
+                    }
+                }
+            }
+
+        }
 
     }
 
     //Need coarse location permission for Fine Location
-
     private fun checkCoarseLocationPermission() = ActivityCompat.checkSelfPermission(
         this, android.Manifest.permission.ACCESS_COARSE_LOCATION
     ) == PackageManager.PERMISSION_GRANTED
-
+    
     private fun checkFineLocationPermission() = ActivityCompat.checkSelfPermission(
         this, android.Manifest.permission.ACCESS_FINE_LOCATION
     ) == PackageManager.PERMISSION_GRANTED
@@ -58,9 +108,76 @@ class Location : AppCompatActivity() {
             }
 
             if (permissionList.isNotEmpty()) {
-                ActivityCompat.requestPermissions(this, permissionList.toTypedArray(), RC_LOCATION)
+                ActivityCompat.requestPermissions(this, permissionList.toTypedArray(), REQUEST_LOCATION)
             }
         }
+    }
+
+    private fun showPermissionExplanation(){
+        Toast.makeText(this, "Need that Permission Bitch", Toast.LENGTH_SHORT).show()
+    }
+
+    fun createLocationRequest(){
+
+        locationRequest = LocationRequest.create().apply {
+            interval = LocationUpdateInterval
+            fastestInterval = LocationUpdateInterval
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+
+
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+
+        val client: SettingsClient = LocationServices.getSettingsClient(this)
+        val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
+
+        task.addOnSuccessListener { locationSettingsResponse ->
+            startLocationUpdates(locationRequest)
+        }
+
+        task.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException){
+                try {
+                    exception.startResolutionForResult(this@Location,
+                        REQUEST_CHECK_SETTINGS)
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    // Ignore the error.
+                }
+            }
+        }
+    }
+
+    private fun startLocationUpdates(locationRequest: LocationRequest) {
+        if (checkFineLocationPermission()){
+            fusedLocationClient.requestLocationUpdates(locationRequest,
+                locationCallback,
+                Looper.getMainLooper())
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if(requestCode == REQUEST_CHECK_SETTINGS){
+            if (resultCode == Activity.RESULT_OK){
+                createLocationRequest()
+            }else{
+                Toast.makeText(this, "GPS Error", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+    }
+
+    private fun stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+
+        binding.tvLocation.setText("Location Updates Stopped")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (requestingLocationUpdates) createLocationRequest()
     }
 
     override fun onRequestPermissionsResult(
@@ -70,7 +187,7 @@ class Location : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        if (requestCode == RC_LOCATION) {
+        if (requestCode == REQUEST_LOCATION) {
             for (i in grantResults.indices) {
                 if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
 
@@ -84,16 +201,10 @@ class Location : AppCompatActivity() {
         }
     }
 
-    private fun showPermissionExplanation(){
-        Toast.makeText(this, "Need that Permission", Toast.LENGTH_SHORT).show()
+    override fun onPause() {
+        super.onPause()
+        stopLocationUpdates()
     }
 
-    fun createLocationRequest() {
-        val locationRequest = LocationRequest.create().apply {
-            interval = LocationUpdateInterval
-            fastestInterval = LocationUpdateInterval
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        }
-    }
 
 }
