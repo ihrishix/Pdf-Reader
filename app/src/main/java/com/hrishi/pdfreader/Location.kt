@@ -49,13 +49,20 @@ class Location : AppCompatActivity() {
         }
 
         binding.switchLocationUpdate.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                requestingLocationUpdates = true
-                createLocationRequest()
-            } else {
-                requestingLocationUpdates = false
-                stopLocationUpdates()
+            if(checkFineLocationPermission() && checkCoarseLocationPermission()){
+                if (isChecked) {
+                    requestingLocationUpdates = true
+                    createLocationRequest()
+                } else {
+                    requestingLocationUpdates = false
+                    stopLocationUpdates()
+                }
+            }else{
+                requestPermissions()
+                binding.switchLocationUpdate.isChecked = false
+                showPermissionExplanation()
             }
+
         }
 
         binding.etIntervalTime.doOnTextChanged { text, start, before, count ->
@@ -113,7 +120,7 @@ class Location : AppCompatActivity() {
     }
 
     private fun showPermissionExplanation() {
-        Toast.makeText(this, "Need that Permission Bitch", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Need that Permission Bitch!", Toast.LENGTH_SHORT).show()
     }
 
     private fun createLocationRequest() {
@@ -158,6 +165,8 @@ class Location : AppCompatActivity() {
                 locationCallback,
                 Looper.getMainLooper()
             )
+        }else{
+            requestPermissions()
         }
     }
 
