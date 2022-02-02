@@ -4,12 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
-import android.icu.util.Calendar
 import android.os.Bundle
 import android.os.Looper
-import android.util.Log
-import android.widget.CompoundButton
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -21,14 +17,15 @@ import com.hrishi.pdfreader.databinding.ActivityLocationBinding
 
 const val REQUEST_LOCATION = 0   //Request Code Location
 const val REQUEST_CHECK_SETTINGS = 1
-var LocationUpdateInterval:Long = 10000 //milliSec
+var LocationUpdateInterval: Long = 10000 //milliSec
+var MIN_UPDATE_INTERVAL = 5000
 var requestingLocationUpdates = false
 
 class Location : AppCompatActivity() {
 
-    lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var binding: ActivityLocationBinding
     private lateinit var locationCallback: LocationCallback
-    lateinit var binding: ActivityLocationBinding
     private lateinit var locationRequest: LocationRequest
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,35 +38,33 @@ class Location : AppCompatActivity() {
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
-                locationResult ?: return
+                locationResult
 
-                Log.d("Hrishi", "onLocationResult: Recevied")
-                for (location in locationResult.locations){
-                    binding.tvLocation.setText("${location.latitude} ${location.longitude}")
-                    binding.tvTime.setText(java.util.Calendar.getInstance().time.toString())
+                for (location in locationResult.locations) {
+                    //Do something with location HERE
+                    binding.tvLocation.text = "${location.latitude} ${location.longitude}"
+                    binding.tvTime.text = java.util.Calendar.getInstance().time.toString()
                 }
             }
         }
 
         binding.switchLocationUpdate.setOnCheckedChangeListener { _, isChecked ->
-            if(isChecked) {
+            if (isChecked) {
                 requestingLocationUpdates = true
                 createLocationRequest()
-
-            }else{
+            } else {
                 requestingLocationUpdates = false
                 stopLocationUpdates()
             }
         }
-        
+
         binding.etIntervalTime.doOnTextChanged { text, start, before, count ->
-            if(text!!.isNotEmpty()){
+            if (text!!.isNotEmpty()) {
                 val interval = Integer.parseInt(text.toString())
-                if(interval >= 5000){
+                if (interval >= MIN_UPDATE_INTERVAL) {
                     LocationUpdateInterval = interval.toLong()
 
-                    if(::locationRequest.isInitialized){
-                        Log.e("Hrishi", "onCreate: $interval", )
+                    if (::locationRequest.isInitialized) {
                         locationRequest.interval = LocationUpdateInterval
                         locationRequest.fastestInterval = LocationUpdateInterval
                         stopLocationUpdates()
@@ -86,7 +81,7 @@ class Location : AppCompatActivity() {
     private fun checkCoarseLocationPermission() = ActivityCompat.checkSelfPermission(
         this, android.Manifest.permission.ACCESS_COARSE_LOCATION
     ) == PackageManager.PERMISSION_GRANTED
-    
+
     private fun checkFineLocationPermission() = ActivityCompat.checkSelfPermission(
         this, android.Manifest.permission.ACCESS_FINE_LOCATION
     ) == PackageManager.PERMISSION_GRANTED
@@ -108,16 +103,20 @@ class Location : AppCompatActivity() {
             }
 
             if (permissionList.isNotEmpty()) {
-                ActivityCompat.requestPermissions(this, permissionList.toTypedArray(), REQUEST_LOCATION)
+                ActivityCompat.requestPermissions(
+                    this,
+                    permissionList.toTypedArray(),
+                    REQUEST_LOCATION
+                )
             }
         }
     }
 
-    private fun showPermissionExplanation(){
+    private fun showPermissionExplanation() {
         Toast.makeText(this, "Need that Permission Bitch", Toast.LENGTH_SHORT).show()
     }
 
-    fun createLocationRequest(){
+    private fun createLocationRequest() {
 
         locationRequest = LocationRequest.create().apply {
             interval = LocationUpdateInterval
@@ -125,10 +124,10 @@ class Location : AppCompatActivity() {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
 
-
         val builder = LocationSettingsRequest.Builder()
             .addLocationRequest(locationRequest)
 
+        //checks if GPS Enabled, and prompts for the same
         val client: SettingsClient = LocationServices.getSettingsClient(this)
         val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
 
@@ -137,10 +136,12 @@ class Location : AppCompatActivity() {
         }
 
         task.addOnFailureListener { exception ->
-            if (exception is ResolvableApiException){
+            if (exception is ResolvableApiException) {
                 try {
-                    exception.startResolutionForResult(this@Location,
-                        REQUEST_CHECK_SETTINGS)
+                    exception.startResolutionForResult(
+                        this@Location,
+                        REQUEST_CHECK_SETTINGS
+                    )
                 } catch (sendEx: IntentSender.SendIntentException) {
                     // Ignore the error.
                 }
@@ -149,20 +150,24 @@ class Location : AppCompatActivity() {
     }
 
     private fun startLocationUpdates(locationRequest: LocationRequest) {
-        if (checkFineLocationPermission()){
-            fusedLocationClient.requestLocationUpdates(locationRequest,
+        if (checkFineLocationPermission()) {
+            binding.tvLocation.text = "Getting Location..."
+
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest,
                 locationCallback,
-                Looper.getMainLooper())
+                Looper.getMainLooper()
+            )
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if(requestCode == REQUEST_CHECK_SETTINGS){
-            if (resultCode == Activity.RESULT_OK){
+        if (requestCode == REQUEST_CHECK_SETTINGS) {
+            if (resultCode == Activity.RESULT_OK) {
                 createLocationRequest()
-            }else{
+            } else {
                 Toast.makeText(this, "GPS Error", Toast.LENGTH_SHORT).show()
             }
         }
@@ -172,7 +177,7 @@ class Location : AppCompatActivity() {
     private fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
 
-        binding.tvLocation.setText("Location Updates Stopped")
+        binding.tvLocation.text = "Location Updates Stopped"
     }
 
     override fun onResume() {
@@ -190,9 +195,8 @@ class Location : AppCompatActivity() {
         if (requestCode == REQUEST_LOCATION) {
             for (i in grantResults.indices) {
                 if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-
-                    if(checkApiVersion()){
-                        if(shouldShowRequestPermissionRationale(permissions[i])){
+                    if (checkApiVersion()) {
+                        if (shouldShowRequestPermissionRationale(permissions[i])) {
                             showPermissionExplanation()
                         }
                     }
